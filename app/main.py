@@ -1,6 +1,7 @@
 import uvicorn
+
 from fastapi import FastAPI
-from app.api.test import router as test_router
+from app.api.flights import router as flights_router
 
 app = FastAPI()
-app.include_router(router=test_router, prefix='/test', tags=['Testing'])
+app.include_router(router=flights_router, prefix='/flights', tags=['Flights'])
