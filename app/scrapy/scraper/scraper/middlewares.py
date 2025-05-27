@@ -1,4 +1,4 @@
-# Define here the models for your spider middleware
+# Define here the models for your spider middlewares
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
@@ -7,11 +7,13 @@ from scrapy import signals
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
+from playwright.async_api import Page
+from playwright_stealth import stealth_async
 
 
 class ScraperSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the spider middleware does not modify the
+    # scrapy acts as if the spider middlewares does not modify the
     # passed objects.
 
     @classmethod
@@ -23,7 +25,7 @@ class ScraperSpiderMiddleware:
 
     def process_spider_input(self, response, spider):
         # Called for each response that goes through the spider
-        # middleware and into the spider.
+        # middlewares and into the spider.
 
         # Should return None or raise an exception.
         return None
@@ -38,14 +40,14 @@ class ScraperSpiderMiddleware:
 
     def process_spider_exception(self, response, exception, spider):
         # Called when a spider or process_spider_input() method
-        # (from other spider middleware) raises an exception.
+        # (from other spider middlewares) raises an exception.
 
         # Should return either None or an iterable of Request or item objects.
         pass
 
     async def process_start(self, start):
         # Called with an async iterator over the spider start() method or the
-        # maching method of an earlier spider middleware.
+        # maching method of an earlier spider middlewares.
         async for item_or_request in start:
             yield item_or_request
 
@@ -55,7 +57,7 @@ class ScraperSpiderMiddleware:
 
 class ScraperDownloaderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the downloader middleware does not modify the
+    # scrapy acts as if the downloader middlewares does not modify the
     # passed objects.
 
     @classmethod
@@ -67,14 +69,14 @@ class ScraperDownloaderMiddleware:
 
     def process_request(self, request, spider):
         # Called for each request that goes through the downloader
-        # middleware.
+        # middlewares.
 
         # Must either:
         # - return None: continue processing this request
         # - or return a Response object
         # - or return a Request object
         # - or raise IgnoreRequest: process_exception() methods of
-        #   installed downloader middleware will be called
+        #   installed downloader middlewares will be called
         return None
 
     def process_response(self, request, response, spider):
@@ -88,7 +90,7 @@ class ScraperDownloaderMiddleware:
 
     def process_exception(self, request, exception, spider):
         # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
+        # (from other downloader middlewares) raises an exception.
 
         # Must either:
         # - return None: continue processing this exception
@@ -98,3 +100,11 @@ class ScraperDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info("Spider opened: %s" % spider.name)
+
+
+class StealthMiddleware:
+    @staticmethod
+    async def process_request(request, spider):
+        page: Page = request.meta.get("playwright_page")
+        if page:
+            await stealth_async(page)
