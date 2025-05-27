@@ -15,6 +15,7 @@ async def start_flight_task(params: FlightsGetParams = Depends()):
     task_id = flights_service.get_flights(params)
     return {"task_id": task_id}
 
+
 @router.get("/{task_id}")
 async def get_task_result(task_id: str):
     task_result = AsyncResult(task_id, app=flight_tasks.run_ryanair_spider.app)

@@ -6,7 +6,8 @@ from celery import shared_task
 
 @shared_task
 def run_ryanair_spider(departure, arrival, date_from, date_to, currency):
-    scrapy_project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'scrapy', 'scraper'))
+    scrapy_project_dir = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', 'scrapy', 'scraper'))
 
     date_from_str = date_from.isoformat() if hasattr(date_from, 'isoformat') else str(date_from)
     date_to_str = date_to.isoformat() if hasattr(date_to, 'isoformat') else str(date_to)

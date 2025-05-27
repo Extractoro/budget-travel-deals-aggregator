@@ -1,5 +1,3 @@
-from sqlalchemy.orm import Session
-
 from app.schemas.schemas import FlightsGetParams
 from app.tasks.flight_tasks import run_ryanair_spider
 

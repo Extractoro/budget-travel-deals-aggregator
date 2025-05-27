@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import date
 
+
 class FlightsGetParams(BaseModel):
     departure: str
     arrival: str

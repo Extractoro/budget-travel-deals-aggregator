@@ -1,5 +1,3 @@
-import uvicorn
-
 from fastapi import FastAPI
 from app.api.flights import router as flights_router
 

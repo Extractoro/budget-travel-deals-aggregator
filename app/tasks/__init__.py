@@ -1,1 +1,1 @@
-from . import flight_tasks
+from . import flight_tasks  # noqa: F401
