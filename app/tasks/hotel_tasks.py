@@ -5,6 +5,7 @@ from typing import Optional
 
 from celery import shared_task
 
+
 @shared_task(bind=True)
 def run_search_hotels_spider(
         self,
@@ -46,7 +47,7 @@ def run_search_hotels_spider(
         ]
 
         if children_ages is not None:
-            cmd.append(f"-a")
+            cmd.append("-a")
             cmd.append(f"children_ages={','.join(map(str, children_ages))}")
 
         proc = subprocess.run(cmd, capture_output=True, text=True, cwd=scrapy_project_dir)

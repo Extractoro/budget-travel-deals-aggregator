@@ -17,13 +17,28 @@ class RyanairPlaywrightSpider(scrapy.Spider):
     ):
         super().__init__(*args, **kwargs)
         self.params = {
-            'adults': adults, 'teens': teens, 'children': children, 'infants': infants,
-            'dateOut': date_out, 'dateIn': date_in,
-            'isConnectedFlight': is_connected_flight, 'discount': discount, 'promoCode': promo_code,
-            'isReturn': is_return, 'originIata': origin, 'destinationIata': destination,
-            'tpAdults': adults, 'tpTeens': teens, 'tpChildren': children, 'tpInfants': infants,
-            'tpStartDate': date_out, 'tpEndDate': date_in,
-            'tpDiscount': discount, 'tpPromoCode': promo_code, 'tpOriginIata': origin, 'tpDestinationIata': destination,
+            'adults': adults,
+            'teens': teens,
+            'children': children,
+            'infants': infants,
+            'dateOut': date_out,
+            'dateIn': date_in,
+            'isConnectedFlight': is_connected_flight,
+            'discount': discount,
+            'promoCode': promo_code,
+            'isReturn': is_return,
+            'originIata': origin,
+            'destinationIata': destination,
+            'tpAdults': adults,
+            'tpTeens': teens,
+            'tpChildren': children,
+            'tpInfants': infants,
+            'tpStartDate': date_out,
+            'tpEndDate': date_in,
+            'tpDiscount': discount,
+            'tpPromoCode': promo_code,
+            'tpOriginIata': origin,
+            'tpDestinationIata': destination,
         }
 
     def start_requests(self):
