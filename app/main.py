@@ -3,6 +3,8 @@ install_reactor("twisted.internet.asyncioreactor.AsyncioSelectorReactor")
 
 from fastapi import FastAPI
 from app.api.flights import router as flights_router
+from app.api.hotels import router as hotels_router
 
 app = FastAPI()
-app.include_router(router=flights_router, prefix='/flights', tags=['Flights'])
+app.include_router(router=flights_router, prefix='/flights')
+app.include_router(router=hotels_router, prefix='/hotels')

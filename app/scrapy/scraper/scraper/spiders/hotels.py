@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlencode
 
 import scrapy
 
@@ -10,32 +11,57 @@ class HotelsSpider(scrapy.Spider):
     allowed_domains = ["hotels.com"]
     start_urls = ["https://hotels.com"]
 
-    def __init__(self, destination="Kyiv", *args, **kwargs):
+    def __init__(self, destination="Kyiv", checkin="2025-06-10", checkout="2025-06-11",
+                 adults=1, rooms=1, children_ages=None, sort="RECOMMENDED", *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.params = None
         self.destination = destination
+        self.checkin = checkin
+        self.checkout = checkout
+        self.adults = adults
+        self.rooms = rooms
+        self.sort = sort
+
+        if children_ages is None:
+            self.children_ages = []
+        elif isinstance(children_ages, str):
+            self.children_ages = [int(x) for x in children_ages.split(",") if x.strip().isdigit()]
+        else:
+            raise ValueError("children_ages must be a list or None")
 
     def start_requests(self):
-        self.logger.info(f"Запуск запроса для: {self.destination}")
+        base_url = "https://www.hotels.com/Hotel-Search"
+
+        children_param = ",".join([f"1_{age}" for age in self.children_ages]) if self.children_ages else None
+
+        self.params = {
+            "destination": self.destination,
+            "d1": self.checkin,
+            "startDate": self.checkin,
+            "d2": self.checkout,
+            "endDate": self.checkout,
+            "adults": self.adults,
+            "rooms": self.rooms,
+            "sort": self.sort,
+            "useRewards": "false",
+        }
+
+        if children_param:
+            self.params["children"] = children_param
+
+        url = f"{base_url}?{urlencode(self.params)}"
+        self.logger.info(f"URL: {url}")
+        print(f"URL: {url}")
+
         yield scrapy.Request(
-            url="https://www.hotels.com/",
+            url=url,
             meta={
                 "playwright": True,
                 "playwright_include_page": True,
                 "playwright_page_methods": [
-                    PageMethod("add_init_script",
-                               "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"),
-                    PageMethod("click", "button[aria-label='Where to?']"),
-                    PageMethod("wait_for_selector", "input[id='destination_form_field']"),
-                    PageMethod("fill",
-                               "input[id='destination_form_field'][aria-label='Where to?']",
-                               self.destination),
-                    PageMethod("wait_for_selector", "ul[role='list'] li"),
-                    PageMethod("click", "ul[role='list'] li:nth-child(1)"),
-                    PageMethod("wait_for_selector", "button[id='search_button'][type='submit']"),
-                    PageMethod("click", "button[id='search_button'][type='submit']"),
-                    PageMethod("wait_for_selector", "div[data-stid='property-listing-results']", timeout=10000),
+                    PageMethod("wait_for_selector", "div[data-stid='property-listing-results']", timeout=20000),
                     PageMethod("evaluate", "window.scrollTo(0, document.body.scrollHeight)"),
-                    PageMethod("wait_for_timeout", 3000),
+                    PageMethod("wait_for_timeout", 15000),
                 ]
             },
             callback=self.parse_results

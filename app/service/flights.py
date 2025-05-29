@@ -1,4 +1,4 @@
-from app.schemas.schemas import RyanairOneWayFareParams, RyanairFlightsSearch
+from app.schemas.schemas import RyanairOneWayFareParams, RyanairFlightsSearch, HotelsSearch
 from app.tasks.flight_tasks import run_ryanair_oneway_fare_spider, run_ryanair_search_flights_spider
 
 
