@@ -1,11 +1,17 @@
+import logging
 import os
 import subprocess
 
 from celery import shared_task
+from subprocess import Popen, PIPE, STDOUT
+
+def log_subprocess_output(pipe):
+    for line in iter(pipe.readline, b''): # b'\n'-separated lines
+        logging.info('got line from subprocess: %r', line)
 
 
 @shared_task
-def run_ryanair_spider(departure, arrival, date_from, date_to, currency):
+def run_ryanair_oneway_fare_spider(departure, arrival, date_from, date_to, currency):
     scrapy_project_dir = os.path.abspath(
         os.path.join(os.path.dirname(__file__), '..', 'scrapy', 'scraper'))
 
@@ -22,6 +28,61 @@ def run_ryanair_spider(departure, arrival, date_from, date_to, currency):
         '-o', '-:json'
     ]
 
-    result = subprocess.run(cmd, capture_output=True, text=True, cwd=scrapy_project_dir)
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, cwd=scrapy_project_dir)
 
     return result.stdout
+
+
+@shared_task(bind=True)
+def run_ryanair_search_flights_spider(
+        self,
+        origin: str,
+        destination: str,
+        date_out: str,
+        date_in: str = '',
+        adults: int = 1,
+        teens: int = 0,
+        children: int = 0,
+        infants: int = 0,
+        is_return: bool = True,
+        discount: int = 0,
+        promo_code: str = '',
+        is_connected_flight: bool = False
+):
+    scrapy_project_dir = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', 'scrapy', 'scraper'))
+
+    output_file = os.path.join(scrapy_project_dir, "output.json")
+
+    cmd = [
+        "scrapy", "crawl", "ryanair_playwright",
+        '-a', f'origin={origin}',
+        '-a', f'destination={destination}',
+        '-a', f'date_out={date_out}',
+        '-a', f'date_in={date_in}',
+        '-a', f'adults={adults}',
+        '-a', f'teens={teens}',
+        '-a', f'children={children}',
+        '-a', f'infants={infants}',
+        '-a', f'is_return={str(is_return).lower()}',
+        '-a', f'discount={discount}',
+        '-a', f'promo_code={promo_code}',
+        '-a', f'is_connected_flight={str(is_connected_flight).lower()}',
+        "-o", output_file,
+    ]
+
+    proc = subprocess.run(cmd, capture_output=True, text=True, cwd=scrapy_project_dir)
+
+    # process = Popen(cmd, text=True, cwd=scrapy_project_dir, stdout=PIPE, stderr=STDOUT)
+    # with process.stdout:
+    #     log_subprocess_output(process.stdout)
+    # exitcode = process.wait()
+
+    if proc.returncode != 0:
+        raise Exception(f"Scrapy error: {proc.stderr}")
+
+    with open(output_file, "r", encoding="utf-8") as f:
+        result = f.read()
+
+    return result
