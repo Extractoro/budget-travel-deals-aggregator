@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Float
 
 from app.database import Base
+
 
 class User(Base):
     __tablename__ = "users"
@@ -9,3 +10,11 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     hashed_password = Column(String)
 
+
+class Flight(Base):
+    __tablename__ = "flights"
+
+    departureDate = Column(String)
+    arrivalDate = Column(String)
+    price = Column(Float)
+    currency = Column(String)
