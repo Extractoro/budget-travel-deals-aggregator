@@ -23,7 +23,8 @@ services:
     container_name: aggregator-application
     restart: always
     build: .
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: >
+      /bin/sh -c "./wait-for-it.sh db:5432 -- alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     volumes:
       - .:/app
     ports:

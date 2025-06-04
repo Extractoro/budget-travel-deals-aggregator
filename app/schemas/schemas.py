@@ -1,9 +1,19 @@
+import re
 from datetime import date
 from enum import Enum
 from typing import Optional, List
 
 from pydantic import BaseModel, Field
 from pydantic.v1 import validator
+
+
+class UserSchema(BaseModel):
+    user_id: int
+    username: str
+
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class RyanairOneWayFareBody(BaseModel):
@@ -102,3 +112,16 @@ class FilteringParams(BaseModel):
     hotel_sort_order: SortOrder = SortOrder.asc
     airline_sort: Optional[AirlineSortEnum] = None
     airline_sort_order: SortOrder = SortOrder.asc
+
+
+class AuthUserCredentials(BaseModel):
+    username: str = Field(..., min_length=4, description="User's username")
+    password: str = Field(..., min_length=8, description="User's password")
+
+    @validator('password')
+    def password_complexity(cls, v):
+        if not re.search(r'\d', v):
+            raise ValueError('Password must contain at least one digit')
+        if not re.search(r'[A-Z]', v):
+            raise ValueError('Password must contain at least one uppercase letter')
+        return v

@@ -25,6 +25,10 @@ RUN python -m playwright install chromium
 
 COPY . .
 
+COPY wait-for-it.sh /app/wait-for-it.sh
+
+RUN chmod +x /app/wait-for-it.sh
+
 EXPOSE 8000
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
