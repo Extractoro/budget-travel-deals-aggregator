@@ -1,6 +1,7 @@
+import scrapy
+
 from urllib.parse import urlencode
 
-import scrapy
 from scrapy_playwright.page import PageMethod
 
 
@@ -44,6 +45,7 @@ class RyanairPlaywrightSpider(scrapy.Spider):
     def start_requests(self):
         base_url = "https://www.ryanair.com/us/en/trip/flights/select"
         url = f"{base_url}?{urlencode(self.params)}"
+
         yield scrapy.Request(
             url=url,
             meta={
@@ -98,5 +100,4 @@ class RyanairPlaywrightSpider(scrapy.Spider):
             "total_flights": len(outbound) + len(inbound)
         }
 
-        print(result)
         yield result

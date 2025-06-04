@@ -1,8 +1,8 @@
-from app.schemas.schemas import RyanairOneWayFareParams, RyanairFlightsSearch
+from app.schemas.schemas import RyanairOneWayFareBody, RyanairFlightsSearch
 from app.tasks.flight_tasks import run_ryanair_oneway_fare_spider, run_ryanair_search_flights_spider
 
 
-def get_oneway_fare_flight(data: RyanairOneWayFareParams):
+def get_oneway_fare_flight(data: RyanairOneWayFareBody):
     task = run_ryanair_oneway_fare_spider.delay(
         departure=data.departure,
         arrival=data.arrival,

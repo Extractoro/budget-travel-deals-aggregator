@@ -3,7 +3,7 @@ import os
 import importlib
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
-from scrapy.spiders import Spider  # обязательно для issubclass
+from scrapy.spiders import Spider
 
 def run_spider(spider_name: str):
     spiders_path = os.path.join(os.path.dirname(__file__), 'spiders')
@@ -34,6 +34,7 @@ def run_spider(spider_name: str):
     output_file = f"{spider_name}_output.json"
     process = CrawlerProcess(settings={
         **get_project_settings(),
+        "LOG_LEVEL": "DEBUG",
         "FEEDS": {
             output_file: {
                 "format": "json",

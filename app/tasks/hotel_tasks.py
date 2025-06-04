@@ -1,9 +1,15 @@
+import logging
 import os
 import subprocess
 import tempfile
 from typing import Optional
 
 from celery import shared_task
+
+
+def log_subprocess_output(pipe):
+    for line in iter(pipe.readline, b''):  # b'\n'-separated lines
+        logging.info('got line from subprocess: %r', line)
 
 
 @shared_task(bind=True)
@@ -15,12 +21,7 @@ def run_search_hotels_spider(
         adults: int,
         children_ages: Optional[list],
         rooms: int,
-        sort: str,
 ):
-    allowed_sort_values = {"RECOMMENDED", "PRICE_LOW_TO_HIGH", "PRICE_HIGH_TO_LOW"}
-    if sort not in allowed_sort_values:
-        raise ValueError(f"Invalid sort value: {sort}. Allowed: {', '.join(allowed_sort_values)}")
-
     if children_ages is not None:
         if not isinstance(children_ages, list):
             raise ValueError("children_ages must be a list")
@@ -36,13 +37,12 @@ def run_search_hotels_spider(
 
     try:
         cmd = [
-            "scrapy", "crawl", "hotels",
+            "scrapy", "crawl", "booking_hotels",
             '-a', f'destination={destination}',
             '-a', f'checkin={checkin}',
             '-a', f'checkout={checkout}',
             '-a', f'adults={adults}',
             '-a', f'rooms={rooms}',
-            '-a', f'sort={sort}',
             "-o", output_file,
         ]
 
@@ -51,6 +51,11 @@ def run_search_hotels_spider(
             cmd.append(f"children_ages={','.join(map(str, children_ages))}")
 
         proc = subprocess.run(cmd, capture_output=True, text=True, cwd=scrapy_project_dir)
+
+        # proc = Popen(cmd, text=True, cwd=scrapy_project_dir, stdout=PIPE, stderr=STDOUT)
+        # with proc.stdout:
+        #     log_subprocess_output(proc.stdout)
+        # exitcode = proc.wait()
 
         if proc.returncode != 0:
             raise Exception(f"Scrapy error: {proc.stderr}")

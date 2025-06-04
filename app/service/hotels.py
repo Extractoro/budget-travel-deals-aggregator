@@ -10,6 +10,5 @@ def get_search_hotel(data: HotelsSearch):
         adults=data.adults,
         children_ages=data.children_ages,
         rooms=data.rooms,
-        sort=data.sort,
     )
     return task.id

@@ -1,11 +1,12 @@
 from datetime import date
-from typing import Optional, List, Literal
+from enum import Enum
+from typing import Optional, List
 
 from pydantic import BaseModel, Field
 from pydantic.v1 import validator
 
 
-class RyanairOneWayFareParams(BaseModel):
+class RyanairOneWayFareBody(BaseModel):
     departure: str = Field(..., min_length=3, max_length=3,
                            description="Departure airport IATA code")
     arrival: str = Field(..., min_length=3, max_length=3, description="Arrival airport IATA code")
@@ -63,9 +64,6 @@ class HotelsSearch(BaseModel):
     rooms: int = Field(..., gt=0, description="Number of rooms (must be at least 1)")
     children_ages: Optional[List[int]] = Field(
         default=None, description="List of children's ages (1–17)")
-    sort: Literal["RECOMMENDED", "PRICE_LOW_TO_HIGH", "PRICE_HIGH_TO_LOW"] = Field(
-        "RECOMMENDED", description="Sorting option for hotel results"
-    )
 
     @validator("children_ages", each_item=True)
     def validate_child_age(self, v):
@@ -79,3 +77,28 @@ class HotelsSearch(BaseModel):
         if checkin_date and checkout_date <= checkin_date:
             raise ValueError("Check-out date must be after check-in date")
         return checkout_date
+
+
+class HotelSortEnum(str, Enum):
+    title = "title"
+    price = "price"
+    rating = "rating"
+    address = "address"
+
+
+class AirlineSortEnum(str, Enum):
+    departure_time = "departure_time"
+    price = "price"
+    duration = "duration"
+
+
+class SortOrder(str, Enum):
+    asc = "asc"
+    desc = "desc"
+
+
+class FilteringParams(BaseModel):
+    hotel_sort: Optional[HotelSortEnum] = None
+    hotel_sort_order: SortOrder = SortOrder.asc
+    airline_sort: Optional[AirlineSortEnum] = None
+    airline_sort_order: SortOrder = SortOrder.asc

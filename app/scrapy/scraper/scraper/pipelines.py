@@ -9,5 +9,11 @@ from itemadapter import ItemAdapter
 
 
 class ScraperPipeline:
+    def open_spider(self, spider):
+        # self.file_path = 'hotels_output.json'
+        # open(self.file_path, 'w').close()
+        self.data = []
+
     def process_item(self, item, spider):
+        self.data.append(dict(item))
         return item

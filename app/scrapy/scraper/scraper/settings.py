@@ -39,7 +39,7 @@ DOWNLOAD_TIMEOUT = 60
 PLAYWRIGHT_DEFAULT_NAVIGATION_TIMEOUT = 60000
 
 # User agent
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0 Safari/537.36"
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0 Safari/537.36"
 
 # Robots.txt
 ROBOTSTXT_OBEY = False
