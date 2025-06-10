@@ -4,11 +4,12 @@ from typing import List, Dict, Any
 from app.models.models import DataTypeEnum
 
 
-def parse_price(price) -> Decimal:
+def parse_price(price) -> Decimal | None:
     if price is None:
         return None
     try:
-        return Decimal(str(price))
+        clean = str(price).replace("$", "").replace("€", "").replace(",", "").strip()
+        return Decimal(clean)
     except Exception:
         return None
 

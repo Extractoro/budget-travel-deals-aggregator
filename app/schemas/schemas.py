@@ -3,7 +3,7 @@ from datetime import date
 from enum import Enum
 from typing import Optional, List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from pydantic.v1 import validator
 
 
@@ -14,6 +14,10 @@ class UserSchema(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+
+class RefreshRequest(BaseModel):
+    email: EmailStr
 
 
 class RyanairOneWayFareBody(BaseModel):
