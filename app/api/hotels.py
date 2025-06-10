@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body, Query, Depends
+from sqlalchemy.orm import Session
 
+from app.database import get_db
+from app.models.models import DataTypeEnum
 from app.schemas.schemas import HotelsSearch, FilteringParams, HotelSortEnum, SortOrder
 from app.service import hotels as hotels_service
 from app.tasks import hotel_tasks as hotel_tasks
@@ -17,7 +20,8 @@ async def start_search_hotels(body: HotelsSearch = Body()):
 async def get_search_task_result(
         task_id: str,
         hotel_sort: HotelSortEnum = Query(None),
-        hotel_sort_order: SortOrder = Query(SortOrder.asc)
+        hotel_sort_order: SortOrder = Query(SortOrder.asc),
+        db: Session = Depends(get_db)
 ):
     filtering = FilteringParams(hotel_sort=hotel_sort, hotel_sort_order=hotel_sort_order)
-    return get_task_result_by_app(task_id, filtering, hotel_tasks.run_search_hotels_spider.app)
+    return get_task_result_by_app(task_id, filtering, db, data_type=DataTypeEnum.HOTEL)

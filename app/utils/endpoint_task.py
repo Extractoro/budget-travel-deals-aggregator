@@ -1,32 +1,34 @@
-import json
+from typing import Optional
 
-from celery.result import AsyncResult
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
+from app.models.models import DataResults, DataTypeEnum
 from app.schemas.schemas import FilteringParams
 from app.utils.sort_results import sort_results
 
 
-def get_task_result_by_app(task_id: str, filtering: FilteringParams, celery_app):
-    task_result = AsyncResult(task_id, app=celery_app)
+def get_task_result_by_app(
+        task_id: str,
+        filtering: FilteringParams,
+        db: Session,
+        data_type: Optional[DataTypeEnum] = None
+):
+    query = db.query(DataResults).filter_by(task_id=task_id)
+    if data_type:
+        query = query.filter_by(data_type=data_type)
 
-    if task_result.state in ['PENDING', 'STARTED']:
-        return {"status": "pending"}
-    elif task_result.state == 'FAILURE':
-        return {"status": "failure", "error": str(task_result.result)}
-    elif task_result.state == 'SUCCESS':
-        try:
-            data = json.loads(task_result.result)
-        except Exception:
-            data = task_result.result
+    result = query.first()
+    if not result:
+        raise HTTPException(status_code=404, detail="Task not found")
 
-        if isinstance(data, list):
-            data = {'results': data}
+    response_data = {
+        "task_id": task_id,
+        "results": result.data
+    }
 
-        sort_results(data, filtering)
-
-        return {"status": "success", "results": data["results"]}
-    else:
-        return {"status": task_result.state}
+    sort_results(response_data, filtering)
+    return response_data
 
 
 async def start_task(body, task_launcher_func):

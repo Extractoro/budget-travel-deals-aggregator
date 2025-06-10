@@ -9,3 +9,8 @@ alembic/versions/__pycache__/
 
 .vscode/
 .idea/
+
+commands.txt
+.env
+i.json
+

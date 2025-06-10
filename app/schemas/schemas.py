@@ -125,3 +125,12 @@ class AuthUserCredentials(BaseModel):
         if not re.search(r'[A-Z]', v):
             raise ValueError('Password must contain at least one uppercase letter')
         return v
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class SubscriptionRequest(BaseModel):
+    task_id: str

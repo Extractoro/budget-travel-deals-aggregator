@@ -26,6 +26,6 @@ def get_search_flights(data: RyanairFlightsSearch):
         is_return=data.is_return,
         discount=data.discount,
         promo_code=data.promo_code,
-        is_connected_flight=data.is_connected_flight
+        is_connected_flight=data.is_connected_flight,
     )
     return task.id

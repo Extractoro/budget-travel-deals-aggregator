@@ -4,19 +4,23 @@ from urllib.parse import urlencode
 
 from scrapy_playwright.page import PageMethod
 
+from app.models.models import DataTypeEnum
+
 
 class RyanairPlaywrightSpider(scrapy.Spider):
     name = "ryanair_playwright"
+    data_type = DataTypeEnum.FLIGHT
     allowed_domains = ["ryanair.com"]
 
     def __init__(
-            self,
+            self, task_id=None,
             origin='', destination='', date_out='', date_in='',
             adults=1, teens=0, children=0, infants=0,
             is_return=True, discount=0, promo_code='',
             is_connected_flight=False, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
+        self.task_id = task_id
         self.params = {
             'adults': adults,
             'teens': teens,
@@ -39,8 +43,11 @@ class RyanairPlaywrightSpider(scrapy.Spider):
             'tpDiscount': discount,
             'tpPromoCode': promo_code,
             'tpOriginIata': origin,
-            'tpDestinationIata': destination,
+            'tpDestinationIata': destination
         }
+
+    def get_query_parameters_dict(self):
+        return self.params
 
     def start_requests(self):
         base_url = "https://www.ryanair.com/us/en/trip/flights/select"

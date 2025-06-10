@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Body, Query
+from fastapi import APIRouter, Body, Query, Depends
+from sqlalchemy.orm import Session
 
+from app.database import get_db
+from app.models.models import DataTypeEnum
 from app.schemas.schemas import (RyanairFlightsSearch,
                                  RyanairOneWayFareBody,
                                  FilteringParams,
@@ -18,8 +21,12 @@ async def start_oneway_fare(body: RyanairOneWayFareBody = Body()):
 
 
 @router.get("/oneway_fare/{task_id}", tags=['Flights: Ryanair One-Way Fare'])
-async def get_ryanair_task_result(task_id: str):
-    return get_task_result_by_app(task_id, flight_tasks.run_ryanair_oneway_fare_spider.app)
+async def get_ryanair_task_result(
+        task_id: str,
+        db: Session = Depends(get_db)
+):
+    filtering = FilteringParams()
+    return get_task_result_by_app(task_id, filtering, db, data_type=DataTypeEnum.ONEWAY_FLIGHT)
 
 
 @router.post("/search_flights/start", tags=['Flights: Ryanair Search Flights'])
@@ -31,10 +38,8 @@ async def start_search_flights(body: RyanairFlightsSearch = Body()):
 async def get_search_task_result(
         task_id: str,
         airline_sort: AirlineSortEnum = Query(None),
-        airline_sort_order: SortOrder = Query(SortOrder.asc)
+        airline_sort_order: SortOrder = Query(SortOrder.asc),
+        db: Session = Depends(get_db)
 ):
     filtering = FilteringParams(airline_sort=airline_sort, airline_sort_order=airline_sort_order)
-    return get_task_result_by_app(
-        task_id,
-        filtering,
-        flight_tasks.run_ryanair_search_flights_spider.app)
+    return get_task_result_by_app(task_id, filtering, db, data_type=DataTypeEnum.FLIGHT)

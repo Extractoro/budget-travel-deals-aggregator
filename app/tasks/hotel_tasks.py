@@ -35,6 +35,8 @@ def run_search_hotels_spider(
     with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as tf:
         output_file = tf.name
 
+    task_id = self.request.id
+
     try:
         cmd = [
             "scrapy", "crawl", "booking_hotels",
@@ -43,6 +45,7 @@ def run_search_hotels_spider(
             '-a', f'checkout={checkout}',
             '-a', f'adults={adults}',
             '-a', f'rooms={rooms}',
+            "-a", f"task_id={task_id}",
             "-o", output_file,
         ]
 

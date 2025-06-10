@@ -2,6 +2,7 @@ from urllib.parse import urlencode
 
 import scrapy
 
+from app.models.models import DataTypeEnum
 from ..items import BookingHotel
 from app.utils.parse_fields import parse_price
 from app.utils.safe_strip import safe_strip
@@ -9,10 +10,11 @@ from app.utils.safe_strip import safe_strip
 
 class BookingHotelsSpider(scrapy.Spider):
     name = "booking_hotels"
+    data_type = DataTypeEnum.HOTEL
     allowed_domains = ["booking.com"]
     start_urls = ["https://booking.com"]
 
-    def __init__(self,
+    def __init__(self, task_id=None,
                  destination="Kyiv",
                  checkin="2025-06-10",
                  checkout="2025-06-11",
@@ -23,7 +25,7 @@ class BookingHotelsSpider(scrapy.Spider):
                  selected_currency='USD',
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        self.task_id = task_id
         self.destination = destination
         self.checkin = checkin
         self.checkout = checkout
@@ -59,6 +61,18 @@ class BookingHotelsSpider(scrapy.Spider):
             params.append(("age", str(age)))
 
         return params
+
+    def get_query_parameters_dict(self):
+        return {
+            "destination": self.destination,
+            "checkin": self.checkin,
+            "checkout": self.checkout,
+            "adults": self.adults,
+            "rooms": self.rooms,
+            "children_ages": self.children_ages,
+            "lang": self.lang,
+            "selected_currency": self.selected_currency,
+        }
 
     def start_requests(self):
         """

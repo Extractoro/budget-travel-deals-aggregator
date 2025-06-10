@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.models.models import User
 from app.schemas.schemas import AuthUserCredentials
+from app.utils.create_access_token import create_access_token
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -34,4 +35,6 @@ def authenticate_user(db: Session, credentials: AuthUserCredentials):
     if not pwd_context.verify(credentials.password, existing_user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
 
-    return existing_user
+    access_token = create_access_token(data={"sub": existing_user.username})
+
+    return {"access_token": access_token, "token_type": "Bearer"}

@@ -10,13 +10,17 @@ from celery import shared_task
 #         logging.info('got line from subprocess: %r', line)
 
 
-@shared_task
-def run_ryanair_oneway_fare_spider(departure, arrival, date_from, date_to, currency):
+@shared_task(bind=True)
+def run_ryanair_oneway_fare_spider(
+    self, departure, arrival, date_from, date_to, currency
+):
     scrapy_project_dir = os.path.abspath(
         os.path.join(os.path.dirname(__file__), '..', 'scrapy', 'scraper'))
 
     date_from_str = date_from.isoformat() if hasattr(date_from, 'isoformat') else str(date_from)
     date_to_str = date_to.isoformat() if hasattr(date_to, 'isoformat') else str(date_to)
+
+    task_id = self.request.id
 
     cmd = [
         "scrapy", "crawl", "ryanair",
@@ -25,7 +29,8 @@ def run_ryanair_oneway_fare_spider(departure, arrival, date_from, date_to, curre
         "-a", f"date_from={date_from_str}",
         "-a", f"date_to={date_to_str}",
         "-a", f"currency={currency}",
-        '-o', '-:json'
+        "-a", f"task_id={task_id}",
+        "-o", "-:json"
     ]
 
     result = subprocess.run(
@@ -57,8 +62,11 @@ def run_ryanair_search_flights_spider(
         output_file = tf.name
 
     try:
+        task_id = self.request.id
+
         cmd = [
             "scrapy", "crawl", "ryanair_playwright",
+            '-a', f'task_id={task_id}',
             '-a', f'origin={origin}',
             '-a', f'destination={destination}',
             '-a', f'date_out={date_out}',
