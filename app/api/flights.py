@@ -9,7 +9,6 @@ from app.schemas.schemas import (RyanairFlightsSearch,
                                  AirlineSortEnum,
                                  SortOrder)
 from app.service import flights as flights_service
-from app.tasks import flight_tasks as flight_tasks
 from app.utils.endpoint_task import start_task, get_task_result_by_app
 
 router = APIRouter()

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.models import User, Subscription, DataResults, DataTypeEnum
-from app.schemas.schemas import SubscriptionRequest, RyanairFlightsSearch, FilteringParams
+from app.schemas.schemas import SubscriptionRequest, FilteringParams
 from app.service.subscription import create_subscription, delete_subscription
 from app.utils.compare_data import compare_data
 from app.utils.endpoint_task import get_task_result_by_app
@@ -18,9 +18,9 @@ router = APIRouter()
 
 @router.post("/subscribe", description="Subscribe on the task")
 def subscribe_on_the_task(
-    body: SubscriptionRequest = Body(...),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+        body: SubscriptionRequest = Body(...),
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
 ):
     create_subscription(db, task_id=body.task_id, user_id=current_user.user_id)
     return {"message": "Subscribed successfully"}
@@ -28,9 +28,9 @@ def subscribe_on_the_task(
 
 @router.delete("/unsubscribe", description="Unsubscribe on the task")
 def unsubscribe_on_the_task(
-    body: SubscriptionRequest = Body(...),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+        body: SubscriptionRequest = Body(...),
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
 ):
     delete_subscription(db, task_id=body.task_id, user_id=current_user.user_id)
     return {"message": "Unsubscribed successfully"}
@@ -38,11 +38,13 @@ def unsubscribe_on_the_task(
 
 @router.post("/subscription/{task_id}/refresh")
 async def refresh_subscription(
-    task_id: str,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+        task_id: str,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
 ):
-    subscription = db.query(Subscription).filter_by(task_id=task_id, user_id=current_user.user_id).first()
+    subscription = (db.query(Subscription)
+                    .filter_by(task_id=task_id, user_id=current_user.user_id)
+                    .first())
     if not subscription:
         raise HTTPException(status_code=403, detail="Not subscribed")
 
