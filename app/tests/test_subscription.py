@@ -19,8 +19,8 @@ def test_subscription_flow(client, auth_token):
     assert res.status_code == 200
     task_id = res.json()["task_id"]
 
-    assert wait_for_task_result(task_id, max_retries = 30, delay = 2),\
-    "DataResults not populated in time"
+    assert wait_for_task_result(task_id, max_retries=30, delay=2), \
+        "DataResults not populated in time"
 
     sub_res = client.post("/subscription/subscribe", json={"task_id": task_id}, headers=headers)
     assert sub_res.status_code == 200

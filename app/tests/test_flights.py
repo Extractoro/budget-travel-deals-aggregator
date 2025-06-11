@@ -16,8 +16,11 @@ def test_scrapy_oneway_fare(client):
     assert "task_id" in result
     task_id = result["task_id"]
 
-    assert wait_for_task_result(task_id, max_retries = 30, delay = 2),\
-    "Task failed or timeout"
+    assert wait_for_task_result(
+        task_id,
+        max_retries=30,
+        delay=2
+    ), "Task failed or timeout"
 
     res = client.get(f"/flights/oneway_fare/{task_id}")
     assert res.status_code == 200
@@ -57,8 +60,8 @@ def test_search_flights_celery(client):
     assert response.status_code == 200
     task_id = response.json()["task_id"]
 
-    assert wait_for_task_result(task_id, max_retries = 30, delay = 2),\
-    "Task did not complete in time"
+    assert wait_for_task_result(task_id, max_retries=30, delay=2), \
+        "Task did not complete in time"
 
     res = client.get(f"/flights/search_flights/{task_id}")
     assert res.status_code == 200
