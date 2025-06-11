@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+
+.venv/
+env/
+venv/
+
+alembic/versions/__pycache__/
+
+.vscode/
+.idea/
+
+commands.txt
+.env
+.env.test
+i.json
+

@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:14
+    container_name: aggregator-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DATABASE_USER}" ]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: aggregator-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  web:
+    container_name: aggregator-application
+    restart: always
+    build: .
+    command: >
+      /bin/sh -c "./wait-for-it.sh db:5432 -- alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  celery:
+    container_name: aggregator-celery
+    restart: always
+    build: .
+    command: celery -A app.celery worker -E -l info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+    environment:
+      - PYTHONPATH=/app
+
+volumes:
+  pg_data:
