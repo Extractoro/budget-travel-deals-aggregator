@@ -7,6 +7,7 @@ def wait_for_task_result(task_id: str, max_retries: int = 10, delay: float = 5):
     for _ in range(max_retries):
         if result.ready():
             if result.successful():
+                print('SUCCESS')
                 return True
             else:
                 return False

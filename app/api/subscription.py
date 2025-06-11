@@ -3,7 +3,10 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.models import User, Subscription, DataResults
-from app.schemas.schemas import SubscriptionRequest, RefreshRequest
+from app.schemas.schemas import (SubscriptionRequest,
+                                 RefreshRequest, 
+                                 SubscriptionDiffResponse, 
+                                 SubscriptionResult)
 from app.service.subscription import (create_subscription,
                                       delete_subscription,
                                       update_subscription_data)
@@ -12,27 +15,35 @@ from app.utils.get_current_user import get_current_user
 router = APIRouter()
 
 
-@router.post("/subscribe", description="Subscribe on the task")
+@router.post(
+    "/subscribe",
+    description="Subscribe on the task",
+    response_model=SubscriptionResult,
+)
 def subscribe_on_the_task(
         body: SubscriptionRequest = Body(...),
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
     create_subscription(db, task_id=body.task_id, user_id=current_user.user_id)
-    return {"message": "Subscribed successfully"}
+    return {"detail": "Subscribed successfully"}
 
 
-@router.delete("/unsubscribe", description="Unsubscribe on the task")
+@router.delete(
+    "/unsubscribe",
+    description="Unsubscribe on the task",
+    response_model=SubscriptionResult
+)
 def unsubscribe_on_the_task(
         body: SubscriptionRequest = Body(...),
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
     delete_subscription(db, task_id=body.task_id, user_id=current_user.user_id)
-    return {"message": "Unsubscribed successfully"}
+    return {"detail": "Unsubscribed successfully"}
 
 
-@router.post("/{task_id}/refresh")
+@router.post("/{task_id}/refresh", response_model=SubscriptionDiffResponse)
 async def refresh_subscription(
         task_id: str,
         request: RefreshRequest = Body(...),

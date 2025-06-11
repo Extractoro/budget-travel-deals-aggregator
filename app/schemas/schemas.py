@@ -1,7 +1,7 @@
 import re
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Literal, Union
 
 from pydantic import BaseModel, Field, EmailStr, field_validator
 from pydantic.v1 import validator
@@ -139,3 +139,134 @@ class TokenResponse(BaseModel):
 
 class SubscriptionRequest(BaseModel):
     task_id: str
+
+
+class TaskResponse(BaseModel):
+    task_id: str
+
+
+class RyanairOneFareResult(BaseModel):
+    departure: str
+    arrival: str
+    departureDate: datetime
+    arrivalDate: datetime
+    price: float
+    currency: str
+
+
+class RyanairOneFareTaskResult(BaseModel):
+    task_id: str
+    results: List[RyanairOneFareResult]
+
+
+class RyanairFlightInfo(BaseModel):
+    airline: str
+    flight_number: str
+    departure_time: str
+    departure_city: str
+    arrival_time: str
+    arrival_city: str
+    duration: str
+    price: str
+
+
+class RyanairSearchParams(BaseModel):
+    adults: str
+    teens: str
+    children: str
+    infants: str
+    dateOut: str
+    dateIn: str
+    isConnectedFlight: str
+    discount: str
+    promoCode: str
+    isReturn: str
+    originIata: str
+    destinationIata: str
+    tpAdults: str
+    tpTeens: str
+    tpChildren: str
+    tpInfants: str
+    tpStartDate: str
+    tpEndDate: str
+    tpDiscount: str
+    tpPromoCode: str
+    tpOriginIata: str
+    tpDestinationIata: str
+
+
+class RyanairFlightResult(BaseModel):
+    search_params: RyanairSearchParams
+    url: str
+    outbound: List[RyanairFlightInfo]
+    inbound: List[RyanairFlightInfo]
+    total_flights: int
+
+
+class RyanairFlightTaskResult(BaseModel):
+    task_id: str
+    results: List[RyanairFlightResult]
+
+
+class HotelResult(BaseModel):
+    title: str
+    address: Optional[str] = None
+    distance: Optional[str] = None
+    rating: Optional[float] = None
+    amenities: List[str]
+    old_price: Optional[float] = None
+    current_price: float
+    taxes: Union[str, None] = None
+
+
+class HotelTaskResult(BaseModel):
+    task_id: str
+    results: List[HotelResult]
+
+
+class SubscriptionResult(BaseModel):
+    detail: str
+
+
+class FlightDifference(BaseModel):
+    departure: str
+    arrival: str
+    departureDate: str
+    price_old: str
+    price_new: str
+    price_diff: str
+    currency: str
+
+
+class HotelDifference(BaseModel):
+    title: str
+    price_old: str
+    price_new: str
+    price_diff: str
+
+
+class FlightDiffWithChanges(BaseModel):
+    type: Literal["oneway_flight", "flight"]
+    differences: List[FlightDifference]
+    has_changes: Literal[True]
+
+
+class HotelDiffWithChanges(BaseModel):
+    type: Literal["hotel"]
+    differences: List[HotelDifference]
+    has_changes: Literal[True]
+
+
+class DiffNoChanges(BaseModel):
+    type: Literal["oneway_flight", "flight", "hotel"]
+    differences: str
+    has_changes: Literal[False]
+
+
+class SubscriptionDiffResponse(BaseModel):
+    diff: Union[
+        FlightDiffWithChanges,
+        HotelDiffWithChanges,
+        DiffNoChanges
+    ]
+
