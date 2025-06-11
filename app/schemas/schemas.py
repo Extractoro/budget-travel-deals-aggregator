@@ -3,7 +3,7 @@ from datetime import date
 from enum import Enum
 from typing import Optional, List
 
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, field_validator
 from pydantic.v1 import validator
 
 
@@ -119,10 +119,11 @@ class FilteringParams(BaseModel):
 
 
 class AuthUserCredentials(BaseModel):
-    username: str = Field(..., min_length=4, description="User's username")
-    password: str = Field(..., min_length=8, description="User's password")
+    username: str = Field(..., min_length=4)
+    password: str = Field(..., min_length=8)
 
-    @validator('password')
+    @classmethod
+    @field_validator("password")
     def password_complexity(cls, v):
         if not re.search(r'\d', v):
             raise ValueError('Password must contain at least one digit')

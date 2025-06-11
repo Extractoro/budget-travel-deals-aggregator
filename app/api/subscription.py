@@ -32,7 +32,7 @@ def unsubscribe_on_the_task(
     return {"message": "Unsubscribed successfully"}
 
 
-@router.post("/subscription/{task_id}/refresh")
+@router.post("/{task_id}/refresh")
 async def refresh_subscription(
         task_id: str,
         request: RefreshRequest = Body(...),
