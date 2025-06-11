@@ -60,5 +60,8 @@ jobs:
         run: celery -A app.celery worker -E -l info &
         shell: bash
 
+      - name: Wait for Celery to be ready
+        run: sleep 10
+
       - name: Run tests
         run: pytest --disable-warnings

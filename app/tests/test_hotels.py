@@ -17,7 +17,8 @@ def test_search_hotels(client):
     task_id = result["task_id"]
     assert task_id
 
-    assert wait_for_task_result(task_id), "Celery task did not complete successfully in time"
+    assert wait_for_task_result(task_id, max_retries = 30, delay = 2),\
+    "Celery task did not complete successfully in time"
 
     res = client.get(f"/hotels/search_hotels/{task_id}")
     assert res.status_code == 200
