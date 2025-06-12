@@ -1,0 +1,62 @@
+name: Testing via Docker
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Create .env file
+      working-directory: ${{ github.workspace }}
+      run: |
+        cat <<EOF > .env
+        DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+        DATABASE_USER=${{ secrets.DATABASE_USER }}
+        DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+        DATABASE_URL=${{ secrets.DATABASE_URL }}
+        CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }}
+        CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }}
+        SECRET_KEY=${{ secrets.SECRET_KEY }}
+        MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+        MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+        MAIL_FROM=${{ secrets.MAIL_FROM }}
+        MAIL_PORT=${{ secrets.MAIL_PORT }}
+        MAIL_SERVER=${{ secrets.MAIL_SERVER }}
+        MAIL_FROM_NAME=${{ secrets.MAIL_FROM_NAME }}
+        ALGORITHM=${{ secrets.ALGORITHM }}
+        ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
+        EOF
+
+    - name: Set up Docker Compose
+      run: |
+        docker compose -f docker-compose.ci.yml up -d --build
+        docker compose -f docker-compose.ci.yml ps
+
+    - name: Wait for web container to be running
+      run: |
+        echo "Waiting for container to be running..."
+        for i in {1..30}; do
+          status=$(docker inspect -f '{{.State.Status}}' aggregator-application || echo "notfound")
+          echo "Container status: $status"
+          if [ "$status" == "running" ]; then
+            break
+          fi
+          sleep 2
+        done
+
+    - name: Wait for PostgreSQL inside container
+      run: docker compose -f docker-compose.ci.yml exec web /app/wait-for-it.sh db:5432 --timeout=30
+
+    - name: Run Alembic migrations manually
+      run: docker compose -f docker-compose.ci.yml exec web alembic upgrade head
+
+    - name: Run tests inside web container
+      run: docker compose -f docker-compose.ci.yml exec web pytest --disable-warnings --maxfail=2
+
+    - name: Show logs if tests fail
+      if: failure()
+      run: docker compose -f docker-compose.ci.yml logs

@@ -7,7 +7,10 @@ from app.schemas.schemas import (RyanairFlightsSearch,
                                  RyanairOneWayFareBody,
                                  FilteringParams,
                                  AirlineSortEnum,
-                                 SortOrder, TaskResponse, RyanairOneFareTaskResult, RyanairFlightTaskResult)
+                                 SortOrder,
+                                 TaskResponse,
+                                 RyanairOneFareTaskResult,
+                                 RyanairFlightTaskResult)
 from app.service import flights as flights_service
 from app.utils.endpoint_task import start_task, get_task_result_by_app
 
