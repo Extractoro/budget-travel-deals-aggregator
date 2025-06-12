@@ -210,13 +210,13 @@ class RyanairFlightTaskResult(BaseModel):
 
 class HotelResult(BaseModel):
     title: str
-    address: str
-    distance: str
+    address: Optional[str] = None
+    distance: Optional[str] = None
     rating: Optional[float] = None
     amenities: List[str]
     old_price: Optional[float] = None
-    current_price: float
-    taxes: str
+    current_price: Optional[float] = None
+    taxes: Union[str, None] = None
 
 
 class HotelTaskResult(BaseModel):
@@ -238,9 +238,22 @@ class FlightDifference(BaseModel):
     currency: str
 
 
-class DiffWithChanges(BaseModel):
-    type: Literal["oneway_flight", "flight", "hotel"]
+class HotelDifference(BaseModel):
+    title: str
+    price_old: str
+    price_new: str
+    price_diff: str
+
+
+class FlightDiffWithChanges(BaseModel):
+    type: Literal["oneway_flight", "flight"]
     differences: List[FlightDifference]
+    has_changes: Literal[True]
+
+
+class HotelDiffWithChanges(BaseModel):
+    type: Literal["hotel"]
+    differences: List[HotelDifference]
     has_changes: Literal[True]
 
 
@@ -251,4 +264,8 @@ class DiffNoChanges(BaseModel):
 
 
 class SubscriptionDiffResponse(BaseModel):
-    diff: Union[DiffWithChanges, DiffNoChanges]
+    diff: Union[
+        FlightDiffWithChanges,
+        HotelDiffWithChanges,
+        DiffNoChanges
+    ]
