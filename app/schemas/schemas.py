@@ -215,7 +215,7 @@ class HotelResult(BaseModel):
     rating: Optional[float] = None
     amenities: List[str]
     old_price: Optional[float] = None
-    current_price: float
+    current_price: Optional[float] = None
     taxes: Union[str, None] = None
 
 
