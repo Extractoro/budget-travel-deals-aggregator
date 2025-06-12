@@ -3,11 +3,11 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.models import DataTypeEnum
-from app.schemas.schemas import (HotelsSearch, 
+from app.schemas.schemas import (HotelsSearch,
                                  FilteringParams,
-                                 HotelSortEnum, 
+                                 HotelSortEnum,
                                  SortOrder,
-                                 HotelTaskResult, 
+                                 HotelTaskResult,
                                  TaskResponse)
 from app.service import hotels as hotels_service
 from app.utils.endpoint_task import start_task, get_task_result_by_app

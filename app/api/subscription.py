@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.models import User, Subscription, DataResults
 from app.schemas.schemas import (SubscriptionRequest,
-                                 RefreshRequest, 
-                                 SubscriptionDiffResponse, 
+                                 RefreshRequest,
+                                 SubscriptionDiffResponse,
                                  SubscriptionResult)
 from app.service.subscription import (create_subscription,
                                       delete_subscription,
