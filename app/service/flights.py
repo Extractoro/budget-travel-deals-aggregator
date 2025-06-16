@@ -18,14 +18,14 @@ def get_search_flights(data: RyanairFlightsSearch):
         origin=data.origin,
         destination=data.destination,
         date_out=data.date_out,
-        date_in=data.date_in,
+        date_in=data.date_in if data.is_return else '',
         adults=data.adults,
         teens=data.teens,
         children=data.children,
         infants=data.infants,
         is_return=data.is_return,
-        discount=data.discount,
-        promo_code=data.promo_code,
-        is_connected_flight=data.is_connected_flight,
+        # discount=data.discount,
+        # promo_code=data.promo_code,
+        # is_connected_flight=data.is_connected_flight,
     )
     return task.id

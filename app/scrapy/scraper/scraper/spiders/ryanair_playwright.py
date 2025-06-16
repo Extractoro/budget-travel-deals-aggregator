@@ -39,7 +39,7 @@ class RyanairPlaywrightSpider(scrapy.Spider):
             'tpChildren': children,
             'tpInfants': infants,
             'tpStartDate': date_out,
-            'tpEndDate': date_in,
+            'tpEndDate': date_in if is_return else '',
             'tpDiscount': discount,
             'tpPromoCode': promo_code,
             'tpOriginIata': origin,
