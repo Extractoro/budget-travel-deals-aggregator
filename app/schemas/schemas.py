@@ -56,7 +56,8 @@ class RyanairFlightsSearch(BaseModel):
     infants: int = Field(0, ge=0, le=6, description="Number of infant passengers (0-6)")
     is_return: bool = Field(True, alias="isReturn", description="Whether it's a round-trip flight")
     # discount: int = Field(0, ge=0, description="Discount percentage, if applicable")
-    # promo_code: Optional[str] = Field("", alias="promoCode", description="Promo code for discounts")
+    # promo_code: Optional[str] = Field(
+    # "", alias="promoCode", description="Promo code for discounts")
     # is_connected_flight: bool = Field(
     #     False,
     #     alias="isConnectedFlight",
